@@ -4,7 +4,17 @@ class Card
   attr_reader :suit
   attr_reader :rank
 
-  def initialize(rank, suit)
+  def initialize(*args)
+    rank = nil
+    suit = nil
+    if args.length == 1 && args.first.is_a?(String)
+      # '4h' - string format
+      rank, suit = *args.first.chars
+    elsif args.length == 2
+      # rank and suit
+      rank, suit = *args
+    end
+
     @rank = card_rank(rank)
     @suit = suit_glyph(suit)
   end
@@ -22,17 +32,19 @@ class Card
   alias_method :eql?, :==
 
   private
+
   def suit_glyph(suit)
     if Deck::SUITS.keys.include?(suit)
       Deck::SUITS[suit]
     elsif Deck::SUITS.values.include?(suit)
       suit
     else
-      raise 'bad suit'
+      Deck::SUITS.detect { |k, v| k.to_s.chars.first == suit.downcase }.last
     end
   end
 
   def card_rank(rank)
+    binding.pry if rank.nil?
     if Deck::RANKS.include?(rank)
       rank
     else
